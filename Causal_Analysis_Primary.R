@@ -14,7 +14,7 @@ library(tidyr)
 # Import your data
 dat <- "Your study data"
 # Covariates selected based on DAG (pre-infection confounders)
-covariates_vax <- c("age", "sex_cd", "race", "hispanic", "CHARLSON_INDEX")
+covariates_vax <- c("age", "sex_cd", "race", "hispanic", "CHARLSON_INDEX", "prior_infection")
 
 # Additional variables for mAb analysis
 covariates_mab <- c(
@@ -40,14 +40,14 @@ outglm <- function(outcome,#outcome of interest
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("vaccination_status_cat","severity", covariates_vax, "label" ))) %>%
         na.omit()
       W.out <- weightit(vaccination_status_cat ~age+sex_cd+CHARLSON_INDEX + severity +
-                          race +hispanic +anti.viral,
+                          race +hispanic +anti.viral +prior_infection,
                         data = dat.aoi, estimand = "ATE" , method = "ebal")
     } else {
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("vaccination_status_cat", covariates_vax, "label" ))) %>%
         na.omit()
       print("hi")
       W.out <- weightit(vaccination_status_cat ~ age+sex_cd+CHARLSON_INDEX +race +
-                          hispanic +anti.viral,
+                          hispanic +anti.viral+prior_infection,
                         data = dat.aoi, estimand = "ATE" , method = "ebal")
     }
   } 
@@ -91,7 +91,7 @@ outglm_mAB <- function(outcome,#outcome of interest
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("received_mAb",covariates_mab, "label" ))) %>%
         na.omit()
       
-      covars <- "age + sex_cd + CHARLSON_INDEX + severity + race + hispanic  +anti.viral"
+      covars <- "age + sex_cd + CHARLSON_INDEX + severity + race + hispanic  +anti.viral+prior_infection"
       
       if (vax == TRUE) {
         covars <- paste(covars, "+ vaccination_status_cat")
@@ -111,7 +111,7 @@ outglm_mAB <- function(outcome,#outcome of interest
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("received_mAb",covariates_mab, "label" ))) %>%
         na.omit()
       
-      covars <- "age + sex_cd + CHARLSON_INDEX + race + hispanic+anti.viral"
+      covars <- "age + sex_cd + CHARLSON_INDEX + race + hispanic+anti.viral+prior_infection"
       
       if (vax == TRUE) {
         covars <- paste(covars, "+ vaccination_status_cat")
