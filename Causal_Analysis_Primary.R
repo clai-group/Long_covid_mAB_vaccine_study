@@ -36,7 +36,7 @@ outglm <- function(outcome,#outcome of interest
   
   if(all == T){
     if(severity == T){
-
+      
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("vaccination_status_cat","severity", covariates_vax, "label" ))) %>%
         na.omit()
       W.out <- weightit(vaccination_status_cat ~age+sex_cd+CHARLSON_INDEX + severity +
@@ -56,9 +56,9 @@ outglm <- function(outcome,#outcome of interest
   fit = glm_weightit(label ~ vaccination_status_cat,
                      data = dat.aoi, weightit = W.out,family = binomial(logit) )
   output = avg_comparisons(fit,
-                            variables = "vaccination_status_cat",
-                            comparison = "lnoravg",
-                            transform = "exp")
+                           variables = "vaccination_status_cat",
+                           comparison = "lnoravg",
+                           transform = "exp")
   
   output = data.frame(output, group)
   
@@ -73,13 +73,13 @@ outglm("PASC.any",dat,group="all")
 
 ### mAB
 outglm_mAB <- function(outcome,#outcome of interest
-                   dat.aoi,#data for modeling
-                   group,
-                   vax = F, # stratify based on this?
-                   severity = T,
-                   exposure = "received_mAb",
-                   all = T
-                   
+                       dat.aoi,#data for modeling
+                       group,
+                       vax = F, # stratify based on this?
+                       severity = T,
+                       exposure = "received_mAb",
+                       all = T
+                       
 ){
   dat.aoi$label <- as.factor(dat.aoi[[outcome]])
   dat.aoi$label <- ifelse(dat.aoi$label == "0",0,1)#as.numeric(dat.aoi$label)
@@ -146,5 +146,3 @@ outglm_mAB <- function(outcome,#outcome of interest
 
 # Example
 outglm_mAB("PASC.any",dat,group="all", vax = T, severity = T)
-
-
