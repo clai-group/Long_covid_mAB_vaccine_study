@@ -1,27 +1,7 @@
 pacman::p_load(tidyverse, survival, survey, survminer, WeightIt, cobalt, 
                gtsummary, broom, tidycmprsk, ggsurvfit)
 
-dat = "your study dat"
-study_df_mort <- dat %>% 
-  mutate(
-    inf_dt = as.Date(LabStartDTS),
-    death_dt = as.Date(death_date),
-    
-    # 3-year follow-up window
-    max_fu_date = inf_dt + 3*365,
-    
-    # End date: death or 3-year max
-    end_date = pmin(death_dt, max_fu_date, na.rm = TRUE),
-    follow_up_days = as.numeric(difftime(end_date, inf_dt, units = "days")),
-    
-    # Mortality outcome
-    death_3yr = ifelse(!is.na(death_dt) & death_dt <= max_fu_date, 1, 0),
-    
-    vaccination_status_cat = as.factor(vaccination_status_cat),
-    received_mAb = as.factor(received_mAb),
-    severity_factor = as.factor(severity)
-  ) 
-
+study_df_mort = "your study dat"
 
 # PS WEIGHTING
 # VACCINE
@@ -71,4 +51,13 @@ cox_mab_mort <- svycoxph(
 
 cox_mab_tbl = tidy(cox_mab_mort, conf.int = TRUE, exponentiate = TRUE)
 cox_mab_tbl
+
+# PH ASSUMPTION
+cox_vax_unweighted <- coxph(Surv(follow_up_days, death_3yr) ~ vaccination_status_cat, 
+                            data = study_df_mort)
+cox.zph(cox_vax_unweighted)
+
+cox_mab_unweighted <- coxph(Surv(follow_up_days, death_3yr) ~ received_mAb, 
+                            data = study_df_mort)
+cox.zph(cox_mab_unweighted)
 

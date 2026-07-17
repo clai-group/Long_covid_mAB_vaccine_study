@@ -6,7 +6,6 @@ library(WeightIt)
 library(flextable)
 library(ggplot2)
 library(officer)
-#library(mediation)
 library(lme4)
 library(DescTools)
 library(tidyr)
@@ -32,7 +31,7 @@ outglm <- function(outcome,#outcome of interest
                    
 ){
   dat.aoi$label <- as.factor(dat.aoi[[outcome]])
-  dat.aoi$label <- ifelse(dat.aoi$label == "0",0,1)#as.numeric(dat.aoi$label)
+  dat.aoi$label <- ifelse(dat.aoi$label == "0",0,1) 
   
   if(all == T){
     if(severity == T){
@@ -40,14 +39,14 @@ outglm <- function(outcome,#outcome of interest
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("vaccination_status_cat","severity", covariates_vax, "label" ))) %>%
         na.omit()
       W.out <- weightit(vaccination_status_cat ~age+sex_cd+CHARLSON_INDEX + severity +
-                          race +hispanic +anti.viral +prior_infection,
+                          race +hispanic +prior_infection,
                         data = dat.aoi, estimand = "ATE" , method = "ebal")
     } else {
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("vaccination_status_cat", covariates_vax, "label" ))) %>%
         na.omit()
       print("hi")
       W.out <- weightit(vaccination_status_cat ~ age+sex_cd+CHARLSON_INDEX +race +
-                          hispanic +anti.viral+prior_infection,
+                          hispanic +prior_infection,
                         data = dat.aoi, estimand = "ATE" , method = "ebal")
     }
   } 
@@ -68,7 +67,7 @@ outglm <- function(outcome,#outcome of interest
 }
 
 # Example
-outglm("PASC.any",dat,group="all")
+outglm("PASC.any",dat,group="all", severity = F)
 
 
 ### mAB
@@ -91,7 +90,7 @@ outglm_mAB <- function(outcome,#outcome of interest
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("received_mAb",covariates_mab, "label" ))) %>%
         na.omit()
       
-      covars <- "age + sex_cd + CHARLSON_INDEX + severity + race + hispanic  +anti.viral+prior_infection"
+      covars <- "age + sex_cd + CHARLSON_INDEX + severity + race + hispanic + prior_infection"
       
       if (vax == TRUE) {
         covars <- paste(covars, "+ vaccination_status_cat")
@@ -111,7 +110,7 @@ outglm_mAB <- function(outcome,#outcome of interest
       dat.aoi <- dat.aoi %>% dplyr::select(all_of(c("received_mAb",covariates_mab, "label" ))) %>%
         na.omit()
       
-      covars <- "age + sex_cd + CHARLSON_INDEX + race + hispanic+anti.viral+prior_infection"
+      covars <- "age + sex_cd + CHARLSON_INDEX + race + hispanic + prior_infection"
       
       if (vax == TRUE) {
         covars <- paste(covars, "+ vaccination_status_cat")
@@ -146,3 +145,6 @@ outglm_mAB <- function(outcome,#outcome of interest
 
 # Example
 outglm_mAB("PASC.any",dat,group="all", vax = T, severity = T)
+
+
+
